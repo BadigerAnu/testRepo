@@ -1,0 +1,38 @@
+{
+	"name": "sqltablepoc",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "testsqltablepoc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "name",
+				"type": "varchar"
+			},
+			{
+				"name": "year",
+				"type": "varchar"
+			},
+			{
+				"name": "address1",
+				"type": "varchar"
+			},
+			{
+				"name": "address2",
+				"type": "varchar"
+			},
+			{
+				"name": "address3",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "testtable"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

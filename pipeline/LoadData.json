@@ -1,0 +1,152 @@
+{
+	"name": "LoadData",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetFileContents",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"wildcardFolderPath": "/testfolder",
+							"wildcardFileName": {
+								"value": "@pipeline().parameters.FileName",
+								"type": "Expression"
+							},
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "testfolderdataset",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "GetValidData",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GetFileContents",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetFileContents').output.Value",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@greater(item().year, '2017')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "LoadSQLTable",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "GetValidData",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetValidData').output.Value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "CallUpsertStoredProcedure",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[insert_update_test_table]",
+								"storedProcedureParameters": {
+									"Address1": {
+										"value": {
+											"value": "@item().address1",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Address2": {
+										"value": {
+											"value": "@item().address2",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Address3": {
+										"value": {
+											"value": "@item().address3",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Name": {
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"Year": {
+										"value": {
+											"value": "@item().year",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "testsqltablepoc",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"FileName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2021-10-13T11:11:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

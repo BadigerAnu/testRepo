@@ -1,0 +1,25 @@
+{
+	"name": "blob-trigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "copy-blob-to-sql",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "BlobEventsTrigger",
+		"typeProperties": {
+			"blobPathBeginsWith": "/test-poc/blobs/anulogicapppocsa.blob.core.windows.net/test-poc/testfolder",
+			"blobPathEndsWith": ".csv",
+			"ignoreEmptyBlobs": true,
+			"scope": "/subscriptions/438269f4-0e18-44dc-b3df-cdc3f1caa0be/resourceGroups/logic-app-poc/providers/Microsoft.Storage/storageAccounts/anulogicapppocsa",
+			"events": [
+				"Microsoft.Storage.BlobCreated"
+			]
+		}
+	}
+}

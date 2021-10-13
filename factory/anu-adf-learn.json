@@ -1,0 +1,9 @@
+{
+	"name": "anu-adf-learn",
+	"location": "southindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "7c90938c-13b4-4358-8cfd-a85f9c72d842",
+		"tenantId": "eaa04d18-ecf0-4797-8c27-7b3138e9074b"
+	}
+}

@@ -1,0 +1,105 @@
+{
+	"name": "pipeline-using-filter",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetDirectoryDetails",
+				"type": "GetMetadata",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "testfolderdataset",
+						"type": "DatasetReference"
+					},
+					"fieldList": [
+						"childItems",
+						"lastModified",
+						"exists"
+					],
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
+				}
+			},
+			{
+				"name": "SelectFile",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "GetDirectoryDetails",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('GetDirectoryDetails').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@startswith(item().name , 'sample')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "IterateThroughFiles",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "SelectFile",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('SelectFile').output.Value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "LoadDataPipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "LoadData",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"FileName": {
+										"value": "@item().name",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2021-10-13T11:11:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
